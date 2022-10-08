@@ -61,6 +61,64 @@ def punto5():
         results = results + item['governmentform'] + " => " + str(item['cantidad']) +"\n"
     print("5) La cantidad de paises bajo regimen son:\n",format(results))
     
+def punto6():
+    cursor.execute("""
+    SELECT continent, SUM(surfacearea) as area
+	FROM country
+	GROUP BY continent""")
+    results = ""
+    for item in cursor.fetchall():
+        results = results + item["continent"] + " " + str(item['area']) + "\n"
+    print("6) Tabla de area total de cada contienente segun BD:\n",format(results))
+
+def punto7a():
+    cursor.execute("""
+    SELECT continent, COUNT(continent) 
+	FROM country
+	GROUP BY continent
+	HAVING COUNT(continent)  >=15
+	ORDER BY continent ASC
+    """)
+    results = ""
+    for item in cursor.fetchall():
+        results = results + item['continent'] + " total paises en el " + str(item['count']) + " paises" + '\n'
+    print("7a) Continentes con mas de 15 paises en el segun BD: \n",format(results))
+    
+    
+def puntoS2a():
+    cursor.execute("""
+        SELECT MAX(lifeexpectancy) as lifeexpectancy, name 
+        FROM country 
+        GROUP BY name 
+        ORDER BY lifeexpectancy DESC 
+        LIMIT 1
+        """)
+    results = cursor.fetchall()
+    resultName = results[0]['name']
+    resultValue = str(results[0]['lifeexpectancy'])
+    print("S2a) el pais con mayor expectativa de vida es ",format(resultName))
+    print("con un valor de", format(resultValue))
+
+def puntoS2b():
+    cursor.execute("""
+        SELECT MIN(lifeexpectancy) as lifeexpectancy, name 
+	    FROM country 
+	    WHERE lifeexpectancy != -1 
+	    GROUP BY name 
+	    ORDER BY lifeexpectancy ASC 
+	    LIMIT 1;
+        """)
+    results = cursor.fetchall()
+    resultName = results[0]['name']
+    resultValue = str(results[0]['lifeexpectancy'])
+    print("S2b) el pais con menor expectativa de vida es ",format(resultName))
+    print("con un valor de", format(resultValue))
+
+
+
+    
+    
+    
 try:
     connDb = psycopg2.connect(
         host = hostname,
@@ -82,6 +140,15 @@ try:
     punto4()    
     #5)
     punto5()
+    #6)
+    punto6()
+    #7)
+    punto7a()
+    #Subqueries
+    #s1)
+    puntoS2a()
+    puntoS2b()
+
     
     connDb.commit()
     
