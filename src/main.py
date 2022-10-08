@@ -172,6 +172,45 @@ def puntoJ2():
         results = results + item['country'] + " con una cantidad de idiomas " + str(item['qty']) + "\n"
     print("J2) La lista de paises con mas de 2 idiomas son: ", format(results))
     
+def puntoJ3():
+    cursor.execute("""
+        SELECT DISTINCT language 
+        FROM (
+            SELECT DISTINCT code 
+            FROM (
+                SELECT SUM(gnp) gnpTotal, continent 
+                FROM (
+	                SELECT * 
+	                FROM (
+		                SELECT * 
+		                FROM country 
+		                INNER JOIN countrylanguage 
+		                ON country.code = countrylanguage.countrycode
+		            ) languageInner
+	                WHERE 
+		                code = countrycode 
+	                AND 
+		                continent != 'Antartic'
+	                ) t 
+                GROUP BY continent 
+                ORDER BY SUM(gnp) ASC
+                LIMIT 1) finalTable 
+                INNER JOIN country 
+                ON finalTable.continent = country.continent 
+                ) ft
+        INNER JOIN countrylanguage 
+        ON ft.code = countrylanguage.countrycode
+        """)
+    dbResults = cursor.fetchall()
+    results = ""
+    
+    for item in dbResults:
+        results = results + item['language'] + "\n"
+        
+    print("J3) El continente mas pobre es Oceania donde se habla los sigiente idiomas \n",format(results))
+    
+    
+    
     
 try:
     connDb = psycopg2.connect(
@@ -208,6 +247,8 @@ try:
     puntoJ1()
     #J2
     puntoJ2()
+    #J3
+    puntoJ3()
 
     
     connDb.commit()
