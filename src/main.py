@@ -138,6 +138,41 @@ def puntoS3():
     
     
     
+def puntoJ1():
+    cursor.execute("""
+        SELECT c.name AS country, l.language AS lenguage
+        FROM country AS c 
+        INNER JOIN countrylanguage AS l
+        ON 	c.code = l.countryCode
+        WHERE c.continent = 'Asia'
+        """)
+    dbResults = cursor.fetchall()
+    
+    results = ""
+    for item in dbResults:
+        results = results + item['country'] + "el idioma es " + item['lenguage'] + "\n"
+        
+    print("J1) Lista idiomas en continente asiatico\n",format(results))
+
+def puntoJ2():
+    cursor.execute("""
+        SELECT COUNT(DISTINCT language) qty, name AS country 
+        FROM (
+            SELECT * FROM country INNER JOIN countrylanguage 
+            ON country.code = countrylanguage.countrycode
+            ) languageInner
+        WHERE code = countrycode
+        GROUP BY name
+        HAVING COUNT(DISTINCT language) >= 2
+        ORDER BY qty DESC
+        """)
+    dbResults = cursor.fetchall()
+    results = ""
+    for item in dbResults:
+        results = results + item['country'] + " con una cantidad de idiomas " + str(item['qty']) + "\n"
+    print("J2) La lista de paises con mas de 2 idiomas son: ", format(results))
+    
+    
 try:
     connDb = psycopg2.connect(
         host = hostname,
@@ -169,6 +204,10 @@ try:
     puntoS2b()
     #s3)
     puntoS3()
+    #J1)
+    puntoJ1()
+    #J2
+    puntoJ2()
 
     
     connDb.commit()
