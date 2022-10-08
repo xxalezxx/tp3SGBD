@@ -1,0 +1,30 @@
+Para generar una BD mendiante docker, seguir los pasos
+
+
+1) Instalar docker (Linux/MacOs es igual) (Windows un poco mas de trabajo), buscar en internet la instalacion
+2)Abrir terminal de comandos
+3)Descargar imagen de PostgresSQL ultima version estable
+    docker pull postgres
+4)Verficar la correcta descarga de la imagen 
+    docker images
+Deberia aparecer la imagen, REPOSITORY "postgres"
+5)Correr el siguiente comandos 
+    docker run --name myPostgresDb -p 5455:5432 -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=postgresDB -d postgres 
+
+--name = es el nombre que se le quiere dar al contenedor
+-p = puerto interno de contenedor para conexion al exterior, por defecto postgresSQL tiene puerto 5432, pero para counicarnos exponemos el 5455
+-e = Variables de entorno, user, password, en este caso para la conexion seran admin admin. Luego el nombre de la base de datos llamada postgresDB para usar y conectarnos
+-d = diatach mode, para correr contenedor sin estar "conectados mediante consola"
+postgres  = la imagen base que usamos para generar el contenedor
+
+6)Correr el siguiente comandos  
+    docker ps
+Se tendria que ver el estado del contenedor, corriendo y en funconamiento
+
+7) Si apagan y prenden equipo puede que el contenedor haya que darlo de alta nuevamente, para estado
+    a) usar el comando "docker ps -a" para ver todos los contenedores, activos o no activos
+    b) copiar el container ID
+    c) usar el siguiente comando "docker run containerID"
+De esta manera volvemos a iniciar y activar el contenendor creado anteriormente
+
+Santari Alejandro / 2022
