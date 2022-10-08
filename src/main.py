@@ -115,7 +115,26 @@ def puntoS2b():
     print("con un valor de", format(resultValue))
 
 
-
+def puntoS3():
+    cursor.execute("""
+        SELECT c.name, c.indepyear, c.continent 
+        FROM country as c,
+        (	
+            SELECT continent 
+	        FROM country 
+	        GROUP BY continent, indepyear 
+	        ORDER BY indepyear,continent ASC 
+	        LIMIT 1) firstContinent
+        WHERE c.continent = firstContinent.continent and c.indepyear != -1 
+        ORDER BY c.indepyear
+        """)
+    results = ""
+    
+    dbResults = cursor.fetchall()
+    for item in dbResults:
+        results = results + item['name'] + " Anio Ind:  " + str(item['indepyear']) + "\n"
+    print("S3) El contienente con el primer pais independiente es", format(dbResults[0]['continent']))
+    print("lista de paises del continente con el primer pais independiente \n",format(results))
     
     
     
@@ -145,9 +164,11 @@ try:
     #7)
     punto7a()
     #Subqueries
-    #s1)
+    #s2)
     puntoS2a()
     puntoS2b()
+    #s3)
+    puntoS3()
 
     
     connDb.commit()
