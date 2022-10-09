@@ -212,36 +212,35 @@ def puntoJ3():
 def puntoJ4():
 
     cursor.execute("""
-        SELECT tablaTotal.country, populationPartial, populationTotal 
-        FROM 
+        SELECT country, (populationPartial * 100) / populationTotal as percentage 
+        FROM
+        (
+            SELECT tablaTotal.country, populationPartial, populationTotal 
+            FROM 
 	        (
 		        SELECT population as populationTotal, name AS country 
-                FROM country 
-                ORDER BY population DESC
+                FROM country ORDER BY population DESC
 
 	        ) tablaTotal
-	    INNER JOIN 
+	        INNER JOIN 
 		    (
 		        SELECT population as populationPartial, name AS country
 		        FROM (
-			            SELECT SUM(city.population) as population, country.code, country.name 
-                        FROM city 
-                        INNER JOIN country 
-                        ON city.countrycode = country.code 
-                        GROUP BY country.code, 	country.name
+			        SELECT SUM(city.population) as population, country.code, country.name FROM city INNER JOIN country ON city.countrycode = country.code GROUP BY country.code, 	country.name
 	                ) finaltable
                 ORDER BY population DESC
 		    ) tablaParcial 
-        ON tablaTotal.country = tablaParcial.country
-        ORDER BY populationTotal DESC
+            ON tablaTotal.country = tablaParcial.country
+            ORDER BY populationTotal DESC) totalTable
+            ORDER BY percentage DESC
         """)
     
     dbResults = cursor.fetchall()
     
     results = ""
 
-    for item in dbResults:
-        results = results + item['country'] + " => " + str(item['populationpartial'] * 100 / (item['populationtotal'])) + "%\n"
+    for item in dbResults:       
+        results = results + item['country'] + " => " + str(item['percentage']) + "%\n" 
         
     print("J4) % en poblacion de cada pais: \n", format(results))
     
