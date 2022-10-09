@@ -208,7 +208,42 @@ def puntoJ3():
         results = results + item['language'] + "\n"
         
     print("J3) El continente mas pobre es Oceania donde se habla los sigiente idiomas \n",format(results))
+
+def puntoJ4():
+
+    cursor.execute("""
+        SELECT tablaTotal.country, populationPartial, populationTotal 
+        FROM 
+	        (
+		        SELECT population as populationTotal, name AS country 
+                FROM country 
+                ORDER BY population DESC
+
+	        ) tablaTotal
+	    INNER JOIN 
+		    (
+		        SELECT population as populationPartial, name AS country
+		        FROM (
+			            SELECT SUM(city.population) as population, country.code, country.name 
+                        FROM city 
+                        INNER JOIN country 
+                        ON city.countrycode = country.code 
+                        GROUP BY country.code, 	country.name
+	                ) finaltable
+                ORDER BY population DESC
+		    ) tablaParcial 
+        ON tablaTotal.country = tablaParcial.country
+        ORDER BY populationTotal DESC
+        """)
     
+    dbResults = cursor.fetchall()
+    
+    results = ""
+
+    for item in dbResults:
+        results = results + item['country'] + " => " + str(item['populationpartial'] * 100 / (item['populationtotal'])) + "%\n"
+        
+    print("J4) % en poblacion de cada pais: \n", format(results))
     
     
     
@@ -249,6 +284,8 @@ try:
     puntoJ2()
     #J3
     puntoJ3()
+    #J4
+    puntoJ4()
 
     
     connDb.commit()
