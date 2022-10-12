@@ -285,6 +285,55 @@ try:
     puntoJ3()
     #J4
     puntoJ4()
+    #punto 3 ejercicio
+    """
+
+ALTER TABLE country ADD CONSTRAINT pkCode PRIMARY KEY (code);
+
+CREATE TABLE IF NOT EXISTS stats (
+	countrycode char(3) PRIMARY KEY,
+	cant_lenguas int not null,
+	pop_urbana int,
+	CONSTRAINT fkCc FOREIGN KEY (countrycode) REFERENCES country(code)
+);
+
+
+INSERT INTO stats 
+	(SELECT c.code AS codigoPais, count(c2.countrycode) AS cantLenguas 
+	FROM country c 
+	INNER JOIN countrylanguage c2 
+	ON c.code = c2.countrycode 
+	GROUP BY c.code 
+	ORDER BY c.code);
+
+
+UPDATE stats SET pop_urbana = tablaFinal.poblacion 
+FROM (
+	SELECT c.code, sum(c2.population) AS poblacion 
+	FROM city c2, country c 
+	WHERE c.code = c2.countrycode 
+	GROUP BY c.code 
+	ORDER BY c.code) AS tablaFinal 
+WHERE stats.countrycode = tablaFinal.code;
+
+
+select * from stats;
+
+    """
+    
+    
+    
+    #punto 4 ejercicio
+    
+    """CREATE TABLE IF NOT EXISTS sitio (
+	id int primary key, 
+	entidad varchar not null, 
+	tipo_entidad varchar not null, 
+	pais varchar not null, 
+	countrycode char(3) not null,
+	CONSTRAINT fkCc FOREIGN KEY (countrycode) REFERENCES country(code)
+);
+"""
 
     
     connDb.commit()
