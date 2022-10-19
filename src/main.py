@@ -1,6 +1,10 @@
 from unittest import result
+from colorama import Cursor
 import psycopg2
 import psycopg2.extras
+import csv
+
+
 
 hostname = 'localhost'
 database ='postgresDB'
@@ -29,7 +33,7 @@ def punto3():
 	FROM country 
 	WHERE 
 	continent = 'South America' 
-	and population >= 15000;""")
+	and population >= 15000000;""")
     
     results = ""
     for item in cursor.fetchall():
@@ -83,7 +87,7 @@ def punto7a():
     for item in cursor.fetchall():
         results = results + item['continent'] + " total paises en el " + str(item['count']) + " paises" + '\n'
     print("7a) Continentes con mas de 15 paises en el segun BD: \n",format(results))
-    
+    #punto 7b agregar 20millones habitantes
     
 def puntoS2a():
     cursor.execute("""
@@ -246,6 +250,45 @@ def puntoJ4():
     
     
     
+def punto4():
+    
+    cursor.execute("""
+                   SELECT code, code2 FROM country;
+                   """)
+    dbResults = cursor.fetchall()
+    
+    diccionary = {}
+    
+    for item in dbResults:
+        keyValue = "" +item['code2']
+        diccionary[keyValue] = item['code']
+
+    f = open("../top-1m.csv", "r")
+    #print(f.read())
+    for item in f:
+        text = item.split(",")
+        id = text[0]
+        url = text[1].replace("\n","")
+        subUrl = url.split(".")
+        
+        if(len(subUrl) == 3):
+            valueKey = "{}".format(subUrl[2].upper())
+            if valueKey in diccionary:
+                query = 'INSERT INTO sitio (id, entidad, tipo_entidad, pais, countrycode) VALUES (%s,%s,%s,%s,%s);'
+                queryValues = (id, subUrl[0], subUrl[1], subUrl[2], diccionary[subUrl[2].upper()])
+                cursor.execute(query, queryValues)    
+                connDb.commit()
+                
+        if(len(subUrl) == 2):
+            valueKey = "{}".format(subUrl[1].upper())
+            if(valueKey in diccionary):
+                query = 'INSERT INTO sitio (id, entidad, tipo_entidad, pais, countrycode) VALUES (%s,%s,%s,%s,%s);'
+                queryValues = (id, subUrl[0], subUrl[1], subUrl[1], diccionary[subUrl[1].upper()])
+                cursor.execute(query, queryValues)    
+                connDb.commit()
+        
+            
+    
 try:
     connDb = psycopg2.connect(
         host = hostname,
@@ -258,34 +301,35 @@ try:
     cursor = connDb.cursor(cursor_factory=psycopg2.extras.DictCursor)
     
     #1)
-    punto1()
+    #punto1()
     #2)
-    punto2()
+    #punto2()
     #3)
-    punto3()
+    #punto3()
     #4)
-    punto4()    
+    #punto4()    
     #5)
-    punto5()
+    #punto5()
     #6)
-    punto6()
+    #punto6()
     #7)
-    punto7a()
+    #punto7a()
     #Subqueries
     #s2)
-    puntoS2a()
-    puntoS2b()
+    #puntoS2a()
+    #puntoS2b()
     #s3)
-    puntoS3()
+    #puntoS3()
     #J1)
-    puntoJ1()
+    #puntoJ1()
     #J2
-    puntoJ2()
+    # aqui quedamos puntoJ2()
     #J3
-    puntoJ3()
+   #puntoJ3()
     #J4
-    puntoJ4()
+    #puntoJ4()
     #punto 3 ejercicio
+    #punto3()
     """
 
 ALTER TABLE country ADD CONSTRAINT pkCode PRIMARY KEY (code);
@@ -335,9 +379,10 @@ select * from stats;
 );
 """
 
+    punto4()
+    
     
     connDb.commit()
-    
     cursor.close()
     connDb.close()
 except Exception as error:
